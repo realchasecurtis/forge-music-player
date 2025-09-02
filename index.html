@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Music Play Button</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #111;
+    }
+
+    .player {
+      position: relative;
+      width: 120px;
+      height: 120px;
+    }
+
+    .circle {
+      transform: rotate(-90deg);
+    }
+
+    svg {
+      width: 120px;
+      height: 120px;
+      transform: rotate(-90deg); /* start progress from top */
+    }
+
+    circle {
+      fill: none;
+      stroke-width: 6;
+      stroke-linecap: round;
+    }
+
+    .bg {
+      stroke: #444;
+    }
+
+    .progress {
+      stroke: #1db954; /* Spotify green vibe */
+      stroke-dasharray: 314; /* circumference of circle (2πr) */
+      stroke-dashoffset: 314;
+      transition: stroke-dashoffset 0.1s linear;
+    }
+
+    .play-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: none;
+      background: #1db954;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="player">
+    <svg>
+      <circle class="bg" cx="60" cy="60" r="50"></circle>
+      <circle class="progress" cx="60" cy="60" r="50"></circle>
+    </svg>
+    <button class="play-btn">▶</button>
+  </div>
+
+  <audio id="audio" src="song.mp3"></audio> <!-- replace with your file -->
+
+  <script>
+    const playBtn = document.querySelector(".play-btn");
+    const audio = document.getElementById("audio");
+    const progressCircle = document.querySelector(".progress");
+
+    const radius = 50;
+    const circumference = 2 * Math.PI * radius;
+    progressCircle.style.strokeDasharray = circumference;
+    progressCircle.style.strokeDashoffset = circumference;
+
+    let isPlaying = false;
+
+    playBtn.addEventListener("click", () => {
+      if (!isPlaying) {
+        audio.play();
+        playBtn.textContent = "⏸";
+        isPlaying = true;
+      } else {
+        audio.pause();
+        playBtn.textContent = "▶";
+        isPlaying = false;
+      }
+    });
+
+    audio.addEventListener("timeupdate", () => {
+      const progress = audio.currentTime / audio.duration;
+      const offset = circumference - progress * circumference;
+      progressCircle.style.strokeDashoffset = offset;
+    });
+
+    audio.addEventListener("ended", () => {
+      playBtn.textContent = "▶";
+      isPlaying = false;
+      progressCircle.style.strokeDashoffset = circumference;
+    });
+  </script>
+</body>
+</html>
