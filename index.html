@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <title>Music Play Button</title>
   <style>
+    :root {
+      --ring-radius: 35; /* ✅ change this to tighten/loosen the circle */
+    }
+
     body {
       display: flex;
       justify-content: center;
@@ -14,34 +18,26 @@
 
     .player {
       position: relative;
-      width: 120px;
+      width: 120px;   /* overall size of widget */
       height: 120px;
-    }
-
-    .circle {
-      transform: rotate(-90deg);
     }
 
     svg {
-      width: 120px;
-      height: 120px;
-      transform: rotate(-90deg); /* start progress from top */
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg); /* start at top */
     }
 
     circle {
       fill: none;
-      stroke-width: 6;
+      stroke-width: 4;
       stroke-linecap: round;
     }
 
-    .bg {
-      stroke: #444;
-    }
-
     .progress {
-      stroke: #1db954; /* Spotify green vibe */
-      stroke-dasharray: 314; /* circumference of circle (2πr) */
-      stroke-dashoffset: 314;
+      stroke: #cd1c18;
+      stroke-dasharray: 0;
+      stroke-dashoffset: 0;
       transition: stroke-dashoffset 0.1s linear;
     }
 
@@ -50,48 +46,86 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
+      background: none;
       border: none;
-      background: #1db954;
-      color: white;
-      font-size: 24px;
       cursor: pointer;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    /* === ICONS === */
+
+    /* Triangle for play */
+    .icon-play {
+      width: 0;
+      height: 0;
+      border-left: 24px solid white;
+      border-top: 14px solid transparent;
+      border-bottom: 14px solid transparent;
+    }
+
+    /* Pause: two chunky bars */
+    .icon-pause {
+      display: flex;
+      gap: 6px; /* space between bars */
+    }
+    .icon-pause div {
+      width: 8px;  /* ✅ thicker pause bars */
+      height: 28px;
+      background: white;
+      border-radius: 2px;
     }
   </style>
 </head>
 <body>
   <div class="player">
-    <svg>
-      <circle class="bg" cx="60" cy="60" r="50"></circle>
-      <circle class="progress" cx="60" cy="60" r="50"></circle>
+    <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+      <circle class="progress"
+              cx="50"
+              cy="50"
+              r="35"></circle>
     </svg>
-    <button class="play-btn">▶</button>
+    <button class="play-btn" id="playPauseBtn">
+      <div class="icon-play"></div>
+    </button>
   </div>
 
-  <audio id="audio" src="breakthrough.mp3"></audio> <!-- replace with your file -->
+  <audio id="audio" src="breakthrough.mp3"></audio>
 
   <script>
-    const playBtn = document.querySelector(".play-btn");
+    const playBtn = document.getElementById("playPauseBtn");
     const audio = document.getElementById("audio");
     const progressCircle = document.querySelector(".progress");
 
-    const radius = 50;
+    // Match CSS radius
+    const radius = parseInt(getComputedStyle(document.documentElement)
+                   .getPropertyValue("--ring-radius"));
     const circumference = 2 * Math.PI * radius;
+    progressCircle.setAttribute("r", radius);
     progressCircle.style.strokeDasharray = circumference;
     progressCircle.style.strokeDashoffset = circumference;
 
     let isPlaying = false;
 
+    function setPlayIcon() {
+      playBtn.innerHTML = '<div class="icon-play"></div>';
+    }
+    function setPauseIcon() {
+      playBtn.innerHTML = '<div class="icon-pause"><div></div><div></div></div>';
+    }
+
     playBtn.addEventListener("click", () => {
       if (!isPlaying) {
         audio.play();
-        playBtn.textContent = "⏸";
+        setPauseIcon();
         isPlaying = true;
       } else {
         audio.pause();
-        playBtn.textContent = "▶";
+        setPlayIcon();
         isPlaying = false;
       }
     });
@@ -103,10 +137,13 @@
     });
 
     audio.addEventListener("ended", () => {
-      playBtn.textContent = "▶";
+      setPlayIcon();
       isPlaying = false;
       progressCircle.style.strokeDashoffset = circumference;
     });
+
+    // init
+    setPlayIcon();
   </script>
 </body>
 </html>
