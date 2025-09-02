@@ -18,30 +18,22 @@
       height: 120px;
     }
 
-    .circle {
-      transform: rotate(-90deg);
-    }
-
     svg {
       width: 120px;
       height: 120px;
-      transform: rotate(-90deg); /* start progress from top */
+      transform: rotate(-90deg); /* makes progress start at top */
     }
 
     circle {
       fill: none;
-      stroke-width: 6;
+      stroke-width: 4;
       stroke-linecap: round;
     }
 
-    .bg {
-      stroke: #444;
-    }
-
     .progress {
-      stroke: #1db954; /* Spotify green vibe */
-      stroke-dasharray: 314; /* circumference of circle (2πr) */
-      stroke-dashoffset: 314;
+      stroke: #1db954;
+      stroke-dasharray: 314;       /* circumference of circle */
+      stroke-dashoffset: 314;      /* fully hidden at start */
       transition: stroke-dashoffset 0.1s linear;
     }
 
@@ -50,21 +42,17 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
+      background: none;
       border: none;
-      background: #1db954;
-      color: white;
-      font-size: 24px;
       cursor: pointer;
+      font-size: 48px;
+      color: white;
     }
   </style>
 </head>
 <body>
   <div class="player">
     <svg>
-      <circle class="bg" cx="60" cy="60" r="50"></circle>
       <circle class="progress" cx="60" cy="60" r="50"></circle>
     </svg>
     <button class="play-btn">▶</button>
