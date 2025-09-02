@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <title>Music Play Button</title>
   <style>
+    :root {
+      --ring-radius: 35; /* ✅ change this to tighten/loosen the circle */
+    }
+
     body {
       display: flex;
       justify-content: center;
@@ -14,14 +18,14 @@
 
     .player {
       position: relative;
-      width: 120px;   /* ✅ change this once to resize everything */
+      width: 120px;   /* overall size of the widget */
       height: 120px;
     }
 
     svg {
       width: 100%;
       height: 100%;
-      transform: rotate(-90deg); /* start circle at top */
+      transform: rotate(-90deg); /* start at top */
     }
 
     circle {
@@ -32,7 +36,7 @@
 
     .progress {
       stroke: #cd1c18;
-      stroke-dasharray: 0;  /* JS will set this */
+      stroke-dasharray: 0;
       stroke-dashoffset: 0;
       transition: stroke-dashoffset 0.1s linear;
     }
@@ -45,7 +49,7 @@
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 48px;   /* ✅ set in px for consistent size */
+      font-size: 48px; /* ✅ stays fixed, doesn’t shrink with circle */
       color: white;
       line-height: 1;
     }
@@ -54,7 +58,10 @@
 <body>
   <div class="player">
     <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-      <circle class="progress" cx="50" cy="50" r="45"></circle>
+      <circle class="progress"
+              cx="50"
+              cy="50"
+              r="35"></circle> <!-- ✅ radius matches --ring-radius -->
     </svg>
     <button class="play-btn" id="playPauseBtn">▶</button>
   </div>
@@ -66,9 +73,11 @@
     const audio = document.getElementById("audio");
     const progressCircle = document.querySelector(".progress");
 
-    // match circle radius (r="45")
-    const radius = 45;
+    // Pull radius from CSS variable
+    const radius = parseInt(getComputedStyle(document.documentElement)
+                   .getPropertyValue("--ring-radius"));
     const circumference = 2 * Math.PI * radius;
+    progressCircle.setAttribute("r", radius);
     progressCircle.style.strokeDasharray = circumference;
     progressCircle.style.strokeDashoffset = circumference;
 
@@ -105,7 +114,6 @@
       progressCircle.style.strokeDashoffset = circumference;
     });
 
-    // init
     setPlayIcon();
   </script>
 </body>
