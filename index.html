@@ -18,7 +18,7 @@
 
     .player {
       position: relative;
-      width: 120px;   /* overall size of the widget */
+      width: 120px;   /* overall size of widget */
       height: 120px;
     }
 
@@ -49,9 +49,35 @@
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 48px; /* ✅ stays fixed, doesn’t shrink with circle */
-      color: white;
-      line-height: 1;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    /* === ICONS === */
+
+    /* Triangle for play */
+    .icon-play {
+      width: 0;
+      height: 0;
+      border-left: 24px solid white;
+      border-top: 14px solid transparent;
+      border-bottom: 14px solid transparent;
+    }
+
+    /* Pause: two chunky bars */
+    .icon-pause {
+      display: flex;
+      gap: 6px; /* space between bars */
+    }
+    .icon-pause div {
+      width: 8px;  /* ✅ thicker pause bars */
+      height: 28px;
+      background: white;
+      border-radius: 2px;
     }
   </style>
 </head>
@@ -61,9 +87,11 @@
       <circle class="progress"
               cx="50"
               cy="50"
-              r="35"></circle> <!-- ✅ radius matches --ring-radius -->
+              r="35"></circle>
     </svg>
-    <button class="play-btn" id="playPauseBtn">▶</button>
+    <button class="play-btn" id="playPauseBtn">
+      <div class="icon-play"></div>
+    </button>
   </div>
 
   <audio id="audio" src="breakthrough.mp3"></audio>
@@ -73,7 +101,7 @@
     const audio = document.getElementById("audio");
     const progressCircle = document.querySelector(".progress");
 
-    // Pull radius from CSS variable
+    // Match CSS radius
     const radius = parseInt(getComputedStyle(document.documentElement)
                    .getPropertyValue("--ring-radius"));
     const circumference = 2 * Math.PI * radius;
@@ -84,10 +112,10 @@
     let isPlaying = false;
 
     function setPlayIcon() {
-      playBtn.textContent = "▶";
+      playBtn.innerHTML = '<div class="icon-play"></div>';
     }
     function setPauseIcon() {
-      playBtn.textContent = "⏸";
+      playBtn.innerHTML = '<div class="icon-pause"><div></div><div></div></div>';
     }
 
     playBtn.addEventListener("click", () => {
@@ -114,6 +142,7 @@
       progressCircle.style.strokeDashoffset = circumference;
     });
 
+    // init
     setPlayIcon();
   </script>
 </body>
