@@ -19,8 +19,8 @@
     }
 
     svg {
-      width: 120px;
-      height: 120px;
+      width: 90px;
+      height: 90px;
       transform: rotate(-90deg); /* makes progress start at top */
     }
 
@@ -65,7 +65,7 @@
     const audio = document.getElementById("audio");
     const progressCircle = document.querySelector(".progress");
 
-    const radius = 50;
+    const radius = 30;
     const circumference = 2 * Math.PI * radius;
     progressCircle.style.strokeDasharray = circumference;
     progressCircle.style.strokeDashoffset = circumference;
