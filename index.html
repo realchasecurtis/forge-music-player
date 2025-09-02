@@ -1,149 +1,207 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Music Play Button</title>
-  <style>
-    :root {
-      --ring-radius: 35; /* ✅ change this to tighten/loosen the circle */
-    }
+<div class="player-container">
+<div class="player">
+<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+<circle class="progress" cx="50" cy="50"></circle>
+</svg>
+<button class="play-btn" id="playPauseBtn"></button>
+</div>
 
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #111;
-    }
+<div class="song-title" id="songTitle"></div>
+</div>
 
-    .player {
-      position: relative;
-      width: 120px;   /* overall size of widget */
-      height: 120px;
-    }
+<audio id="audio"></audio>
 
-    svg {
-      width: 100%;
-      height: 100%;
-      transform: rotate(-90deg); /* start at top */
-    }
+<style>
+:root {
+--ring-radius: 25;
+}
 
-    circle {
-      fill: none;
-      stroke-width: 4;
-      stroke-linecap: round;
-    }
+.player-container {
+display: flex;
+align-items: center;
+gap: 10px;
+color: white;
+}
 
-    .progress {
-      stroke: #cd1c18;
-      stroke-dasharray: 0;
-      stroke-dashoffset: 0;
-      transition: stroke-dashoffset 0.1s linear;
-    }
+.player {
+position: relative;
+width: 120px;
+height: 120px;
+flex-shrink: 0;
+}
 
-    .play-btn {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: none;
-      border: none;
-      cursor: pointer;
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-    }
+svg {
+width: 100%;
+height: 100%;
+transform: rotate(-90deg);
+}
 
-    /* === ICONS === */
+circle {
+fill: none;
+stroke-width: 4;
+stroke-linecap: round;
+}
 
-    /* Triangle for play */
-    .icon-play {
-      width: 0;
-      height: 0;
-      border-left: 24px solid white;
-      border-top: 14px solid transparent;
-      border-bottom: 14px solid transparent;
-    }
+.progress {
+stroke: #cd1c18;
+opacity: 0;
+transition: stroke-dashoffset 0.1s linear, opacity 0.3s ease;
+}
 
-    /* Pause: two chunky bars */
-    .icon-pause {
-      display: flex;
-      gap: 6px; /* space between bars */
-    }
-    .icon-pause div {
-      width: 8px;  /* ✅ thicker pause bars */
-      height: 28px;
-      background: white;
-      border-radius: 2px;
-    }
-  </style>
-</head>
-<body>
-  <div class="player">
-    <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-      <circle class="progress"
-              cx="50"
-              cy="50"
-              r="35"></circle>
-    </svg>
-    <button class="play-btn" id="playPauseBtn">
-      <div class="icon-play"></div>
-    </button>
-  </div>
+.play-btn {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+background: none;
+border: none;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 0;
+z-index: 2;
+}
 
-  <audio id="audio" src="breakthrough.mp3"></audio>
+.icon-play {
+width: 0;
+height: 0;
+border-left: 17px solid white;
+border-top: 10px solid transparent;
+border-bottom: 10px solid transparent;
+}
 
-  <script>
-    const playBtn = document.getElementById("playPauseBtn");
-    const audio = document.getElementById("audio");
-    const progressCircle = document.querySelector(".progress");
+.icon-pause {
+display: flex;
+gap: 5px;
+}
+.icon-pause div {
+width: 6px;
+height: 20px;
+background: white;
+border-radius: 2px;
+}
 
-    // Match CSS radius
-    const radius = parseInt(getComputedStyle(document.documentElement)
-                   .getPropertyValue("--ring-radius"));
-    const circumference = 2 * Math.PI * radius;
-    progressCircle.setAttribute("r", radius);
-    progressCircle.style.strokeDasharray = circumference;
-    progressCircle.style.strokeDashoffset = circumference;
+.song-title {
+font-family: "Courier New", monospace;
+font-size: 14px;
+white-space: nowrap;
+opacity: 0;
+transform: translateX(20px);
+transition: transform 0.4s ease, opacity 0.4s ease;
+}
 
-    let isPlaying = false;
+.song-title.show {
+transform: translateX(0);
+opacity: 1;
+}
+</style>
 
-    function setPlayIcon() {
-      playBtn.innerHTML = '<div class="icon-play"></div>';
-    }
-    function setPauseIcon() {
-      playBtn.innerHTML = '<div class="icon-pause"><div></div><div></div></div>';
-    }
+<script>
+const playBtn = document.getElementById("playPauseBtn");
+const audio = document.getElementById("audio");
+const progressCircle = document.querySelector(".progress");
+const songTitle = document.getElementById("songTitle");
 
-    playBtn.addEventListener("click", () => {
-      if (!isPlaying) {
-        audio.play();
-        setPauseIcon();
-        isPlaying = true;
-      } else {
-        audio.pause();
-        setPlayIcon();
-        isPlaying = false;
-      }
-    });
+// === Playlist ===
+const songs = [
+"into-the-unknown.mp3",
+"checkpoint.mp3",
+"breakthrough.mp3",
+"making-an-entrance.mp3",
+"resolution.mp3"
+].map(file => `https://realchasecurtis.github.io/forge-music-player/${file}`);
 
-    audio.addEventListener("timeupdate", () => {
-      const progress = audio.currentTime / audio.duration;
-      const offset = circumference - progress * circumference;
-      progressCircle.style.strokeDashoffset = offset;
-    });
+let shuffled = [];
+let currentIndex = -1;
 
-    audio.addEventListener("ended", () => {
-      setPlayIcon();
-      isPlaying = false;
-      progressCircle.style.strokeDashoffset = circumference;
-    });
+// === Shuffle helper (Fisher–Yates) ===
+function shuffleArray(array) {
+const arr = [...array];
+for (let i = arr.length - 1; i > 0; i--) {
+const j = Math.floor(Math.random() * (i + 1));
+[arr[i], arr[j]] = [arr[j], arr[i]];
+}
+return arr;
+}
 
-    // init
-    setPlayIcon();
-  </script>
-</body>
-</html>
+function refreshShuffle() {
+shuffled = shuffleArray(songs);
+currentIndex = 0;
+loadSong(shuffled[currentIndex]);
+}
+
+// === Progress circle setup ===
+const radius = parseInt(getComputedStyle(document.documentElement)
+.getPropertyValue("--ring-radius"));
+const circumference = 2 * Math.PI * radius;
+progressCircle.setAttribute("r", radius);
+progressCircle.setAttribute("cx", 50);
+progressCircle.setAttribute("cy", 50);
+progressCircle.style.strokeDasharray = circumference;
+progressCircle.style.strokeDashoffset = circumference;
+
+let isPlaying = false;
+
+function setPlayIcon() {
+playBtn.innerHTML = '<div class="icon-play"></div>';
+}
+function setPauseIcon() {
+playBtn.innerHTML = '<div class="icon-pause"><div></div><div></div></div>';
+}
+
+function loadSong(src) {
+audio.src = src;
+const filename = src.split("/").pop().replace(".mp3", "");
+songTitle.textContent = filename;
+}
+
+function playSong() {
+audio.play();
+setPauseIcon();
+progressCircle.style.opacity = 1;
+songTitle.classList.add("show");
+isPlaying = true;
+}
+
+function pauseSong() {
+audio.pause();
+setPlayIcon();
+songTitle.classList.remove("show");
+isPlaying = false;
+}
+
+playBtn.addEventListener("click", () => {
+if (!isPlaying) {
+if (currentIndex === -1) {
+refreshShuffle(); // shuffle fresh at first play
+}
+playSong();
+} else {
+pauseSong();
+}
+});
+
+audio.addEventListener("timeupdate", () => {
+const progress = audio.currentTime / audio.duration;
+const offset = circumference - progress * circumference;
+progressCircle.style.strokeDashoffset = offset;
+});
+
+audio.addEventListener("ended", () => {
+progressCircle.style.strokeDashoffset = circumference;
+progressCircle.style.opacity = 0;
+songTitle.classList.remove("show");
+
+currentIndex++;
+if (currentIndex >= shuffled.length) {
+refreshShuffle(); // reshuffle after finishing all songs
+} else {
+loadSong(shuffled[currentIndex]);
+}
+playSong();
+});
+
+// === init ===
+setPlayIcon();
+</script>
