@@ -14,14 +14,14 @@
 
     .player {
       position: relative;
-      width: 120px;
+      width: 120px;   /* ✅ change this to resize everything */
       height: 120px;
     }
 
     svg {
-      width: 90px;
-      height: 90px;
-      transform: rotate(-90deg); /* makes progress start at top */
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg); /* start circle at top */
     }
 
     circle {
@@ -32,8 +32,8 @@
 
     .progress {
       stroke: #cd1c18;
-      stroke-dasharray: 314;       /* circumference of circle */
-      stroke-dashoffset: 314;      /* fully hidden at start */
+      stroke-dasharray: 0;  /* JS will set this */
+      stroke-dashoffset: 0;
       transition: stroke-dashoffset 0.1s linear;
     }
 
@@ -45,41 +45,50 @@
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 48px;
+      font-size: 36%; /* scales relative to .player */
       color: white;
+      line-height: 1;
     }
   </style>
 </head>
 <body>
   <div class="player">
-    <svg>
-      <circle class="progress" cx="60" cy="60" r="50"></circle>
+    <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+      <circle class="progress" cx="50" cy="50" r="45"></circle>
     </svg>
-    <button class="play-btn">▶</button>
+    <button class="play-btn" id="playPauseBtn">▶</button>
   </div>
 
-  <audio id="audio" src="breakthrough.mp3"></audio> <!-- replace with your file -->
+  <audio id="audio" src="breakthrough.mp3"></audio>
 
   <script>
-    const playBtn = document.querySelector(".play-btn");
+    const playBtn = document.getElementById("playPauseBtn");
     const audio = document.getElementById("audio");
     const progressCircle = document.querySelector(".progress");
 
-    const radius = 30;
+    // match circle radius (r="45")
+    const radius = 45;
     const circumference = 2 * Math.PI * radius;
     progressCircle.style.strokeDasharray = circumference;
     progressCircle.style.strokeDashoffset = circumference;
 
     let isPlaying = false;
 
+    function setPlayIcon() {
+      playBtn.textContent = "▶";
+    }
+    function setPauseIcon() {
+      playBtn.textContent = "⏸";
+    }
+
     playBtn.addEventListener("click", () => {
       if (!isPlaying) {
         audio.play();
-        playBtn.textContent = "⏸";
+        setPauseIcon();
         isPlaying = true;
       } else {
         audio.pause();
-        playBtn.textContent = "▶";
+        setPlayIcon();
         isPlaying = false;
       }
     });
@@ -91,10 +100,13 @@
     });
 
     audio.addEventListener("ended", () => {
-      playBtn.textContent = "▶";
+      setPlayIcon();
       isPlaying = false;
       progressCircle.style.strokeDashoffset = circumference;
     });
+
+    // init
+    setPlayIcon();
   </script>
 </body>
 </html>
